@@ -29,10 +29,20 @@ Interactive, responsive dashboards and reference guides for weekly *Forza Horizo
 
 ```text
 fh6-festival-playlists/
-├── README.md                                         # Project documentation
-├── index.html                                        # Currently active seasonal dashboard
-├── FH6_Series05_Week3_Winter_Dashboard_Main_v3.html   # Season archive copy
-└── FH6_Series05_Week3_Winter_Dashboard_Main_v3.txt    # Plain-text companion guide
+├── Series-01                                           # Archived Series Playlist
+├── Series-02                                           # Archived Series Playlist
+├── Series-03                                           # Archived Series Playlist
+├── Series-04                                           # Archived Series Playlist
+├── Series-05                                           # Archived Series Playlist
+├── Series-06                                           # Future Series Playlist Placeholder
+├── Series-07                                           # Future Series Playlist Placeholder
+├── Series-08                                           # Future Series Playlist Placeholder
+├── Series-09                                           # Future Series Playlist Placeholder
+├── Series-10                                           # Future Series Playlist Placeholder
+├── README.md                                           # Project documentation
+├── index.html                                          # Currently active seasonal dashboard
+├── FH6_Series05_Week3_Winter_Dashboard_Main_v3.html    # Season archive copy
+└── FH6_Series05_Week3_Winter_Dashboard_Main_v3.txt     # Plain-text companion guide
 ```
 
 ---
