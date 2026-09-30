@@ -2,7 +2,7 @@
 
 Interactive, responsive dashboards and reference guides for weekly *Forza Horizon 6* Festival Playlists.
 
-🌐 **Live Dashboard:** [https://yusuke614.github.io/FH6-Festival-Playlists/](https://yusuke614.github.io/FH6-Festival-Playlists/)
+🌐 **Live Dashboard:** [https://yusuke614.github.io/fh6-festival-playlists/](https://yusuke614.github.io/fh6-festival-playlists/)
 
 ---
 
