@@ -1,0 +1,1463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FH6 Series 05 Week 1 Summer - Festival Playlist & Tunes Dashboard</title>
+  <style>
+    :root {
+      --bg-dark: #0a0d14;
+      --card-bg: #141822;
+      --card-border: #222938;
+      --accent-pink: #ff0055;
+      --accent-cyan: #00e5ff;
+      --accent-yellow: #ffe600;
+      --accent-green: #00ff88;
+      --accent-orange: #ff7700;
+      --text-main: #f0f3f8;
+      --text-muted: #8e98aa;
+      --text-dim: #5c6677;
+      --badge-bg: #1c2230;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.5;
+      padding: 24px;
+    }
+    .dashboard-container { max-width: 1360px; margin: 0 auto; }
+    header {
+      background: linear-gradient(135deg, #1a202e 0%, #0f121a 100%);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 24px 32px;
+      margin-bottom: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+    header::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; width: 6px; height: 100%;
+      background: linear-gradient(to bottom, var(--accent-pink), var(--accent-cyan));
+    }
+    .header-top {
+      display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px; margin-bottom: 16px;
+    }
+    .title-group h1 {
+      font-size: 28px; font-weight: 800; letter-spacing: -0.5px; display: flex; align-items: center; gap: 12px;
+    }
+    .title-group h1 span.tag {
+      background: var(--accent-pink); color: #fff; font-size: 13px; padding: 4px 10px; border-radius: 4px; text-transform: uppercase; letter-spacing: 1px;
+    }
+    .subtitle { color: var(--text-muted); font-size: 15px; margin-top: 6px; }
+    .season-dates {
+      background: var(--badge-bg); border: 1px solid var(--card-border); padding: 8px 16px; border-radius: 6px; font-size: 14px; font-weight: 600; color: var(--accent-cyan);
+    }
+    .roster-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 14px; margin-bottom: 24px;
+    }
+    .roster-card {
+      background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 8px; padding: 14px 18px; display: flex; align-items: center; justify-content: space-between;
+    }
+    .roster-info h4 { font-size: 15px; font-weight: 700; }
+    .roster-info h4 a { color: var(--text-main); text-decoration: none; }
+    .roster-info h4 a:hover { color: var(--accent-cyan); }
+    .roster-info p { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+    .status-badge {
+      font-size: 11px; font-weight: 800; padding: 4px 8px; border-radius: 4px; text-transform: uppercase;
+    }
+    .status-active { background: rgba(0, 255, 136, 0.15); color: var(--accent-green); border: 1px solid rgba(0, 255, 136, 0.3); }
+    .status-inactive { background: rgba(255, 0, 85, 0.15); color: var(--accent-pink); border: 1px solid rgba(255, 0, 85, 0.3); }
+    
+    /* Progress Bar */
+    .progress-bar-container {
+      background: #0a0d13; border-radius: 8px; height: 12px; width: 100%; overflow: hidden; margin: 14px 0 8px 0; border: 1px solid var(--card-border);
+    }
+    .progress-bar-fill {
+      height: 100%; width: 0%; background: linear-gradient(90deg, var(--accent-pink), var(--accent-cyan)); transition: width 0.3s ease;
+    }
+    .progress-stats {
+      display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: var(--text-muted); font-weight: 500; margin-top: 8px;
+    }
+    .stat-line {
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px;
+    }
+
+    /* Controls Bar */
+    .nav-bar {
+      display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; background: #11151e; border: 1px solid var(--card-border); border-radius: 8px; padding: 12px 18px; margin-bottom: 24px;
+    }
+    .filter-buttons { display: flex; flex-wrap: wrap; gap: 8px; }
+    .filter-btn, .collapse-toggle-all {
+      background: var(--badge-bg); border: 1px solid var(--card-border); color: var(--text-muted); padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s;
+    }
+    .filter-btn:hover, .collapse-toggle-all:hover { color: var(--text-main); border-color: rgba(255, 255, 255, 0.2); }
+    .filter-btn.active { background: var(--accent-cyan); color: #000; border-color: var(--accent-cyan); font-weight: 700; }
+    .collapse-toggle-all { background: #1f2738; color: var(--accent-cyan); border-color: #2e3a52; }
+    .collapse-toggle-all:hover { background: var(--accent-cyan); color: #000; }
+    
+    .search-input {
+      background: #090c12; border: 1px solid var(--card-border); color: var(--text-main); padding: 8px 14px; border-radius: 6px; font-size: 13px; min-width: 250px; outline: none;
+    }
+    .search-input:focus { border-color: var(--accent-cyan); }
+
+    /* Layout Grids */
+    .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 20px; margin-bottom: 24px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; margin-bottom: 24px; }
+
+    /* Collapsible Card Styles */
+    .card {
+      background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 10px; padding: 20px; display: flex; flex-direction: column; position: relative; margin-bottom: 24px; transition: border-color 0.2s;
+    }
+    .card:hover { border-color: rgba(255, 255, 255, 0.12); }
+    
+    .card-header {
+      display: flex; justify-content: space-between; align-items: center; padding-bottom: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.06); cursor: pointer; user-select: none; gap: 12px; flex-wrap: wrap;
+    }
+    .card-title-wrap {
+      display: flex; align-items: center; gap: 12px;
+    }
+    .collapse-arrow {
+      display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; font-size: 12px; color: var(--accent-cyan); transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .card.collapsed .collapse-arrow {
+      transform: rotate(-90deg);
+      color: var(--text-dim);
+    }
+    .card-title { font-size: 17px; font-weight: 700; color: var(--text-main); }
+    .card-header:hover .card-title { color: var(--accent-cyan); }
+
+    .collapsible-content {
+      margin-top: 16px;
+    }
+    .card.collapsed .collapsible-content {
+      display: none;
+    }
+
+        .badge {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 4px 9px;
+      border-radius: 4px;
+      letter-spacing: 0.5px;
+      white-space: normal;
+      line-height: 1.35;
+      text-align: right;
+      display: inline-block;
+      max-width: 100%;
+      word-break: break-word;
+    }
+    .badge-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      justify-content: flex-end;
+      align-items: center;
+      max-width: 100%;
+    }
+    @media (max-width: 720px) {
+      .card-header {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 10px;
+      }
+      .badge-group {
+        justify-content: flex-start !important;
+      }
+      .badge {
+        text-align: left !important;
+      }
+      .header-top {
+        flex-direction: column;
+        align-items: flex-start !important;
+      }
+    }
+    .badge-pts { background: rgba(0, 229, 255, 0.15); color: var(--accent-cyan); border: 1px solid rgba(0, 229, 255, 0.3); }
+    .badge-reward { background: rgba(255, 230, 0, 0.15); color: var(--accent-yellow); border: 1px solid rgba(255, 230, 0, 0.3); }
+    .badge-hot { background: rgba(255, 0, 85, 0.15); color: var(--accent-pink); border: 1px solid rgba(255, 0, 85, 0.3); }
+
+    .meta-list { list-style: none; font-size: 14px; }
+    
+    .meta-item { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; padding: 8px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.03); }
+    .meta-val { font-weight: 600; text-align: right; color: var(--text-main); word-break: break-word; }
+    
+    /* Reward Card Grid - prevents any text clipping */
+    .reward-card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 14px;
+    }
+    .reward-item-box {
+      background: #0f131c;
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      transition: border-color 0.2s;
+    }
+    .reward-item-box:hover {
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+    .reward-points-badge {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: inline-block;
+      align-self: flex-start;
+      padding: 3px 8px;
+      border-radius: 4px;
+      white-space: nowrap;
+    }
+    .rpb-gold {
+      background: rgba(255, 230, 0, 0.15);
+      color: var(--accent-yellow);
+      border: 1px solid rgba(255, 230, 0, 0.3);
+    }
+    .rpb-cyan {
+      background: rgba(0, 229, 255, 0.15);
+      color: var(--accent-cyan);
+      border: 1px solid rgba(0, 229, 255, 0.3);
+    }
+    .reward-vehicle-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-main);
+      line-height: 1.35;
+      word-break: break-word;
+    }
+    .reward-rarity-tag {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .meta-item:last-child { border-bottom: none; }
+    .meta-label { color: var(--text-muted); font-weight: 500; }
+    .meta-val { font-weight: 600; text-align: right; color: var(--text-main); }
+
+    .item-check-row {
+      display: flex; align-items: flex-start; gap: 12px; padding: 12px 14px; border-radius: 8px; background: rgba(255, 255, 255, 0.02); margin-bottom: 12px; transition: background 0.2s;
+    }
+    .item-check-row:hover { background: rgba(255, 255, 255, 0.04); }
+
+    .item-check-row input[type="checkbox"] {
+      appearance: none; width: 20px; height: 20px; border: 2px solid var(--text-dim); border-radius: 4px; cursor: pointer; outline: none; margin-top: 3px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .item-check-row input[type="checkbox"]:checked { background-color: var(--accent-green); border-color: var(--accent-green); }
+    .item-check-row input[type="checkbox"]:checked::after { content: "✓"; color: #000; font-weight: 900; font-size: 13px; }
+    .item-check-row.checked-task .task-title { text-decoration: line-through; color: var(--text-dim); }
+
+    .task-content { flex: 1; }
+    .task-title { font-weight: 700; font-size: 15px; color: var(--text-main); }
+    .task-desc { font-size: 13px; color: var(--text-muted); margin-top: 3px; }
+
+    .reward-pill {
+      display: inline-block; margin-top: 8px; background: rgba(255, 230, 0, 0.1); border: 1px solid rgba(255, 230, 0, 0.25); color: var(--accent-yellow); font-size: 12px; font-weight: 600; padding: 3px 8px; border-radius: 4px;
+    }
+
+    .tip-box {
+      background: rgba(0, 229, 255, 0.06); border-left: 3px solid var(--accent-cyan); padding: 10px 14px; border-radius: 0 6px 6px 0; font-size: 13px; color: var(--text-main); margin-top: 10px;
+    }
+    .tip-box strong { color: var(--accent-cyan); }
+
+    .tunes-subgrid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; margin-top: 14px;
+    }
+    .tune-pill-card {
+      background: #0f131c; border: 1px solid var(--card-border); border-radius: 6px; padding: 12px; display: flex; flex-direction: column; justify-content: space-between;
+    }
+    .tuner-badge {
+      font-size: 10px; font-weight: 800; padding: 2px 6px; border-radius: 3px; text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .tb-beau { background: rgba(0, 229, 255, 0.2); color: var(--accent-cyan); }
+    .tb-django { background: rgba(255, 119, 0, 0.2); color: var(--accent-orange); }
+    .tb-paper { background: rgba(255, 230, 0, 0.2); color: var(--accent-yellow); }
+
+    .tune-car-name { font-size: 14px; font-weight: 700; color: #fff; margin: 4px 0 2px 0; }
+    .tune-detail-text { font-size: 12px; color: var(--text-muted); line-height: 1.35; margin-bottom: 8px; }
+    .sharecode-row {
+      display: flex; justify-content: space-between; align-items: center; background: #07090f; border: 1px solid #1a202d; border-radius: 4px; padding: 6px 10px; margin-top: auto;
+    }
+    .sc-val {
+      font-family: monospace; font-size: 14px; font-weight: 800; color: var(--accent-green); letter-spacing: 1px;
+    }
+    .copy-sm-btn {
+      background: #1c2230; border: 1px solid #2d3648; color: var(--text-main); padding: 2px 8px; border-radius: 3px; font-size: 11px; cursor: pointer; font-weight: 600;
+    }
+    .copy-sm-btn:hover { background: var(--accent-cyan); color: #000; }
+
+    #toast {
+      visibility: hidden; min-width: 200px; background-color: var(--accent-green); color: #000; text-align: center; border-radius: 6px; padding: 10px 16px; position: fixed; z-index: 1000; bottom: 30px; right: 30px; font-weight: 700; font-size: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    }
+    #toast.show { visibility: visible; animation: fadein 0.3s, fadeout 0.3s 1.7s; }
+    @keyframes fadein { from { bottom: 0; opacity: 0; } to { bottom: 30px; opacity: 1; } }
+    @keyframes fadeout { from { bottom: 30px; opacity: 1; } to { bottom: 0; opacity: 0; } }
+
+    footer {
+      text-align: center; padding: 24px 0 12px 0; font-size: 13px; color: var(--text-dim); border-top: 1px solid var(--card-border); margin-top: 32px;
+    }
+    footer a { color: var(--accent-cyan); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+  </style>
+
+</head>
+<body>
+  <div class="dashboard-container">
+    
+    <!-- HEADER -->
+    <header>
+      <div class="header-top">
+        <div class="title-group">
+          <h1>Forza Horizon 6 <span class="tag">Series 05 • Week 1</span></h1>
+          <p class="subtitle">Theme: <strong>British Automotive - Summer (Wet Season)</strong></p>
+        </div>
+        <div class="season-dates">
+          Active: Sept 10, 2026 – Sept 17, 2026
+        </div>
+      </div>
+      
+      <div class="progress-bar-container">
+        <div id="progressBar" class="progress-bar-fill"></div>
+      </div>
+      <div class="progress-stats">
+        <div class="stat-line">
+          <span>Completion Progress: <strong id="progressPct">0%</strong> (<span id="completedCount">0</span>/<span id="totalCount">0</span> events completed)</span>
+        </div>
+        <div class="stat-line">
+          <span>Season Rewards Target: <strong id="collectedPoints" style="color:var(--accent-yellow);">0 Pts</strong> collected (<span id="rewardPointsMin">0/20 Pts Min</span> • <span id="rewardPointsMax">0/40 Pts Max</span>)</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- CREATOR ROSTER STATUS -->
+    <div class="roster-grid">
+      <div class="roster-card">
+        <div class="roster-info">
+          <h4><a href="https://www.reddit.com/r/ForzaHorizon/comments/1wclmwm/series_5_playlist_1_summer_competitive_tunes/" target="_blank" rel="noopener">ollumi &amp; Team</a></h4>
+          <p>18 Verified Meta &amp; Strong Tunes</p>
+        </div>
+        <span class="status-badge status-active">Active</span>
+      </div>
+
+      <div class="roster-card">
+        <div class="roster-info">
+          <h4><a href="https://www.reddit.com/r/ForzaHorizon/" target="_blank" rel="noopener">u/awesomebeau</a></h4>
+          <p>Taking 1–3 Weeks Break</p>
+        </div>
+        <span class="status-badge status-inactive">On Hiatus</span>
+      </div>
+
+      <div class="roster-card">
+        <div class="roster-info">
+          <h4><a href="https://www.reddit.com/r/forza/comments/1wdo01n/series_05_week_1_summer_seasonal_tunes_british/" target="_blank" rel="noopener">u/BigHeadDjango</a></h4>
+          <p>14 Tunes + PR &amp; EventLab Codes</p>
+        </div>
+        <span class="status-badge status-active">Active</span>
+      </div>
+
+      <div class="roster-card">
+        <div class="roster-info">
+          <h4><a href="https://www.reddit.com/r/PaperHeartZero/comments/1wcql9o/fh6_series_5_summer_tunes/" target="_blank" rel="noopener">u/PaperHeartZero</a></h4>
+          <p>8 Seasonal Tunes + Stock PR Options</p>
+        </div>
+        <span class="status-badge status-active">Active</span>
+      </div>
+    </div>
+
+    <!-- CONTROLS & FILTER BAR -->
+    <div class="nav-bar">
+      <div class="filter-buttons">
+        <button class="filter-btn active" data-filter="all">All Events</button>
+        <button class="filter-btn" data-filter="championship">Championships</button>
+        <button class="filter-btn" data-filter="prstunt">PR Stunts</button>
+        <button class="filter-btn" data-filter="challenge">Challenges</button>
+        <button class="filter-btn" data-filter="online">Online</button>
+      </div>
+      <div style="display:flex; gap:10px; align-items:center;">
+        <button id="toggleAllBtn" class="collapse-toggle-all">Collapse All ▾</button>
+        <input type="text" id="searchInput" class="search-input" placeholder="Search events, cars, restrictions, tunes, codes...">
+      </div>
+    </div>
+
+    <!-- 1. PROGRESS REWARDS & MONTHLY RIVALS -->
+    <div class="section-block" data-section="all">
+      <div class="card collapsible-card" data-card-id="s05_rewards">
+        <div class="card-header">
+          <div class="card-title-wrap">
+            <span class="collapse-arrow">▼</span>
+            <span class="card-title">🏆 Series 05 &amp; Summer Season Progress Rewards</span>
+          </div>
+          <div class="badge-group">
+            <span class="badge badge-reward">Exclusive British Cars</span>
+          </div>
+        </div>
+        <div class="collapsible-content">
+          <div style="margin-bottom: 8px; font-size: 13px; font-weight: 700; color: var(--accent-pink); text-transform: uppercase; letter-spacing: 0.5px;">
+            Summer Season Rewards (Sept 10 - Sept 17)
+          </div>
+          <div class="reward-card-grid">
+            <div class="reward-item-box">
+              <span class="reward-points-badge rpb-cyan">20 Points</span>
+              <div class="reward-vehicle-title">2019 Ginetta G40 Junior</div>
+              <div class="reward-rarity-tag">New to Horizon • Lightweight B 560 RWD British Racer</div>
+            </div>
+            <div class="reward-item-box">
+              <span class="reward-points-badge rpb-gold">40 Points</span>
+              <div class="reward-vehicle-title">2021 McLaren 620R</div>
+              <div class="reward-rarity-tag">Seasonal Exclusive • S1 773 RWD Track Star</div>
+            </div>
+          </div>
+
+          <div style="margin: 18px 0 8px 0; font-size: 13px; font-weight: 700; color: var(--accent-cyan); text-transform: uppercase; letter-spacing: 0.5px;">
+            Overall Series 05 Rewards (Sept 10 - Oct 8)
+          </div>
+          <div class="reward-card-grid">
+            <div class="reward-item-box">
+              <span class="reward-points-badge rpb-cyan">80 Points</span>
+              <div class="reward-vehicle-title">2025 Bentley Continental GT Speed</div>
+              <div class="reward-rarity-tag">New to Horizon • A 699 AWD Luxury Hybrid GT</div>
+            </div>
+            <div class="reward-item-box">
+              <span class="reward-points-badge rpb-gold">160 Points</span>
+              <div class="reward-vehicle-title">2019 Aston Martin Valhalla Concept</div>
+              <div class="reward-rarity-tag">Wheelspin / Series Exclusive • R 960 AWD Hypercar</div>
+            </div>
+          </div>
+
+          <!-- Monthly Rivals -->
+          <div style="margin-top: 14px;">
+            <div class="item-check-row" data-id="s05_monthly_rivals" data-points="1">
+              <input type="checkbox" id="task_s05_monthly_rivals">
+              <div class="task-content">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                  <div class="task-title">Monthly Rivals: Shimanoyama Sprint (Road Racing • Sprint)</div>
+                  <span class="reward-points-badge rpb-cyan">4 PTS TOTAL • 1 PT PER SEASON • ROAD SPRINT</span>
+                </div>
+                <div class="task-desc">Race Type: <strong>Road Racing</strong> • Course Type: <strong>Point-to-Point Sprint</strong> • Post a clean lap in the 2025 McLaren W1 on the Shimanoyama Sprint.</div>
+                <div class="reward-pill">🎁 Super Wheelspin + 1 Season Pt (4 Series Pts Total)</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. WEEKLY CHALLENGE -->
+    <div class="section-block" data-section="challenge">
+      <div class="card collapsible-card" data-card-id="s05_weekly">
+        <div class="card-header">
+          <div class="card-title-wrap">
+            <span class="collapse-arrow">▼</span>
+            <span class="card-title">🚗 Weekly Challenge: "Extreme Rover"</span>
+          </div>
+          <div class="badge-group">
+            <span class="badge badge-pts">5 PTS • 2020 Land Rover Defender 110 X</span>
+          </div>
+        </div>
+        <div class="collapsible-content">
+          <div class="item-check-row" data-id="s05_task_weekly" data-points="5">
+            <input type="checkbox" id="task_s05_weekly">
+            <div class="task-content">
+              <div class="task-title">Chapter 1–4: Complete all 4 Weekly Chapters</div>
+              <div class="task-desc">1) Own &amp; drive the 2020 Land Rover Defender 110 X. 2) Earn 4 Stars at Danger Signs. 3) Earn 3 Great Wreckage Skills. 4) Photograph the car at the Shimanoyama Drift Circuit.</div>
+              <div class="reward-pill">🎁 5 PTS + 25,000 CR</div>
+            </div>
+          </div>
+
+          <div class="tunes-subgrid">
+            <div class="tune-pill-card">
+              <div>
+                <span class="tuner-badge tb-django">u/BigHeadDjango</span>
+                <div class="tune-car-name">2020 Land Rover Defender 110 X</div>
+                <div class="tune-detail-text">A Dirt CC v1 No Aero Stock Look. Strong acceleration, 7 gears, smooth damping for danger signs and wreckage.</div>
+              </div>
+              <div class="sharecode-row">
+                <span class="sc-val">458 181 561</span>
+                <button class="copy-sm-btn" onclick="copyCode('458181561')">Copy</button>
+              </div>
+            </div>
+
+            <div class="tune-pill-card">
+              <div>
+                <span class="tuner-badge tb-beau">LogikJ</span>
+                <div class="tune-car-name">2020 Land Rover Defender 110 X</div>
+                <div class="tune-detail-text">Class A 700 Cross Country. Excellent landing damping for Danger Signs and wreckage plow through fences/props.</div>
+              </div>
+              <div class="sharecode-row">
+                <span class="sc-val">137 549 957</span>
+                <button class="copy-sm-btn" onclick="copyCode('137549957')">Copy</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. DAILY CHALLENGES -->
+    <div class="section-block" data-section="challenge">
+      <div class="card collapsible-card" data-card-id="s05_dailies">
+        <div class="card-header">
+          <div class="card-title-wrap">
+            <span class="collapse-arrow">▼</span>
+            <span class="card-title">📅 Daily Challenges (7 Challenges)</span>
+          </div>
+          <div class="badge-group">
+            <span class="badge badge-pts">7 PTS TOTAL • 1 PT &amp; 5,000 CR EACH</span>
+          </div>
+        </div>
+        <div class="collapsible-content">
+          <div class="item-check-row" data-id="s05_daily_1" data-points="1">
+            <input type="checkbox" id="task_s05_daily_1">
+            <div class="task-content">
+              <div class="task-title">Thursday: Complete 1 lap of Drift Attack (Drift Circuit)</div>
+              <div class="task-desc">Run a full lap of the permanent Drift Attack circuit at Shimanoyama Circuit.</div>
+              <div class="reward-pill">🎁 1 PT + 5,000 CR</div>
+            </div>
+          </div>
+
+          <div class="item-check-row" data-id="s05_daily_2" data-points="1">
+            <input type="checkbox" id="task_s05_daily_2">
+            <div class="task-content">
+              <div class="task-title">Friday: Earn at least 1 Star from Speed Zones (PR Stunt)</div>
+              <div class="task-desc">Pass through any Speed Zone across Japan earning at least 1 star.</div>
+              <div class="reward-pill">🎁 1 PT + 5,000 CR</div>
+            </div>
+          </div>
+
+          <div class="item-check-row" data-id="s05_daily_3" data-points="1">
+            <input type="checkbox" id="task_s05_daily_3">
+            <div class="task-content">
+              <div class="task-title">Saturday: Complete a Dirt Race (Dirt Trail or Scramble)</div>
+              <div class="task-desc">Complete any Dirt Racing event or scramble.</div>
+              <div class="reward-pill">🎁 1 PT + 5,000 CR</div>
+            </div>
+          </div>
+
+          <div class="item-check-row" data-id="s05_daily_4" data-points="1">
+            <input type="checkbox" id="task_s05_daily_4">
+            <div class="task-content">
+              <div class="task-title">Sunday: Earn 3 Wreckage Skills</div>
+              <div class="task-desc">Smash destructible objects, fences, or market stalls in freeroam.</div>
+              <div class="reward-pill">🎁 1 PT + 5,000 CR</div>
+            </div>
+          </div>
+
+          <div class="item-check-row" data-id="s05_daily_5" data-points="1">
+            <input type="checkbox" id="task_s05_daily_5">
+            <div class="task-content">
+              <div class="task-title">Monday: Park at any Car Meet</div>
+              <div class="task-desc">Drive to and park within any Car Meet hub on the map.</div>
+              <div class="reward-pill">🎁 1 PT + 5,000 CR</div>
+            </div>
+          </div>
+
+          <div class="item-check-row" data-id="s05_daily_6" data-points="1">
+            <input type="checkbox" id="task_s05_daily_6">
+            <div class="task-content">
+              <div class="task-title">Tuesday: Beat a Rival's Ghost (Rivals Event)</div>
+              <div class="task-desc">Set a clean lap time beating an existing ghost in Rivals mode.</div>
+              <div class="reward-pill">🎁 1 PT + 5,000 CR</div>
+            </div>
+          </div>
+
+          <div class="item-check-row" data-id="s05_daily_7" data-points="1">
+            <input type="checkbox" id="task_s05_daily_7">
+            <div class="task-content">
+              <div class="task-title">Wednesday: Earn 3 Drift or E-Drift Skills</div>
+              <div class="task-desc">Slide and execute 3 drift skills during open world or race events.</div>
+              <div class="reward-pill">🎁 1 PT + 5,000 CR</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. PHOTO CHALLENGE & TREASURE HUNT -->
+    <div class="section-block" data-section="challenge">
+      <div class="card collapsible-card" data-card-id="s05_photo_treasure">
+        <div class="card-header">
+          <div class="card-title-wrap">
+            <span class="collapse-arrow">▼</span>
+            <span class="card-title">📸 Photo Challenge (#JaguarSnap) &amp; 🗺️ Treasure Hunt</span>
+          </div>
+          <div class="badge-group">
+            <span class="badge badge-pts">5 PTS TOTAL</span>
+          </div>
+        </div>
+        <div class="collapsible-content">
+          <div class="item-check-row" data-id="s05_task_photo" data-points="2">
+            <input type="checkbox" id="task_s05_photo">
+            <div class="task-content">
+              <div class="task-title">Photo Challenge: #JaguarSnap</div>
+              <div class="task-desc">Take a photo of any Jaguar vehicle at the Shimanoyama Drift Circuit.</div>
+              <div class="reward-pill">🎁 Retro Racesuit (Clothing) + 2 Pts</div>
+            </div>
+          </div>
+
+          <div class="item-check-row" data-id="s05_task_treasure" data-points="3">
+            <input type="checkbox" id="task_s05_treasure">
+            <div class="task-content">
+              <div class="task-title">Treasure Hunt: Ito Region</div>
+              <div class="task-desc">Follow the photo clue to locate the treasure chest in the grassy fields north of the Ito Straight Speed Trap.</div>
+              <div class="reward-pill">🎁 100,000 CR + 3 Pts</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. CHAMPIONSHIP 1: RURAL SUMMER -->
+    <div class="section-block" data-section="championship">
+      <div class="card collapsible-card" data-card-id="s05_champ1">
+        <div class="card-header">
+          <div class="card-title-wrap">
+            <span class="collapse-arrow">▼</span>
+            <span class="card-title">🏁 Championship 1: "Rural Summer"</span>
+          </div>
+          <div class="badge-group">
+            <span class="badge badge-pts">5 PTS • Retro Supercars A 700 • Street Sprints</span>
+          </div>
+        </div>
+        <div class="collapsible-content">
+          <div class="item-check-row" data-id="s05_task_champ1" data-points="5">
+            <input type="checkbox" id="task_s05_champ1">
+            <div class="task-content">
+              <div class="task-title">Street Racing: Cedar Run (Sprint), River Descent (Sprint), Sunflower Charge (Sprint)</div>
+              <div class="task-desc">Race Type: <strong>Street Racing</strong> • Course Types: <strong>All Sprints (Point-to-Point)</strong> • Restrictions: <strong>Retro Supercars (Class A 700)</strong></div>
+              <div class="reward-pill">🎁 1991 Jaguar Sport XJR-15 + 5 Pts</div>
+            </div>
+          </div>
+
+          <div class="tunes-subgrid">
+            <div class="tune-pill-card">
+              <div>
+                <span class="tuner-badge tb-beau">ollumi</span>
+                <div class="tune-car-name">1994 Ferrari F355 Berlinetta</div>
+                <div class="tune-detail-text">Strong sprint top-end build. Smooth turn-in through River Descent hairpins and wide-open speed on Sunflower Charge.</div>
+              </div>
+              <div class="sharecode-row">
+                <span class="sc-val">258 991 303</span>
+                <button class="copy-sm-btn" onclick="copyCode('258991303')">Copy</button>
+              </div>
+            </div>
+
+            <div class="tune-pill-card">
+              <div>
+                <span class="tuner-badge tb-paper">u/PaperHeartZero</span>
+                <div class="tune-car-name">2005 Ford GT</div>
+                <div class="tune-detail-text">A 700 Road. PaperHeartZero's take on the A-Class meta car—well balanced and easy to handle.</div>
+              </div>
+              <div class="sharecode-row">
+                <span class="sc-val">307 175 620</span>
+                <button class="copy-sm-btn" onclick="copyCode('307175620')">Copy</button>
+              </div>
+            </div>
+
+            <div class="tune-pill-card">
+              <div>
+                <span class="tuner-badge tb-paper">u/PaperHeartZero</span>
+                <div class="tune-car-name">1997 Lamborghini Diablo SV</div>
+                <div class="tune-detail-text">A 700 Road. Accessible Barn Find setup with balanced street grip and smooth power.</div>
+              </div>
+              <div class="sharecode-row">
+                <span class="sc-val">287 129 541</span>
+                <button class="copy-sm-btn" onclick="copyCode('287129541')">Copy</button>
+              </div>
+            </div>
+
+            <div class="tune-pill-card">
+              <div>
+                <span class="tuner-badge tb-django">MSR Sam</span>
+                <div class="tune-car-name">2005 Ford GT</div>
+                <div class="tune-detail-text">Meta rally-tire road tune. High lateral traction and forgiving handling around street curbs.</div>
+              </div>
+              <div class="sharecode-row">
+                <span class="sc-val">499 517 921</span>
+                <button class="copy-sm-btn" onclick="copyCode('499517921')">Copy</button>
+              </div>
+            </div>
+
+            <div class="tune-pill-card">
+              <div>
+                <span class="tuner-badge tb-beau">VNX Ruinz</span>
+                <div class="tune-car-name">1987 Ferrari F40</div>
+                <div class="tune-detail-text">Purist setup with authentic aerodynamics and classic turbo-charged power delivery.</div>
+              </div>
+              <div class="sharecode-row">
+                <span class="sc-val">567 138 980</span>
+                <button class="copy-sm-btn" onclick="copyCode('567138980')">Copy</button>
+              </div>
+            </div>
+
+            <div class="tune-pill-card">
+              <div>
+                <span class="tuner-badge tb-django">u/BigHeadDjango</span>
+                <div class="tune-car-name">1994 Ferrari F355 Berlinetta</div>
+                <div class="tune-detail-text">A Road v2 No Aero Stock Look. Very fast sprint pace, 7 gears, optimized for automatic/manual.</div>
+              </div>
+              <div class="sharecode-row">
+                <span class="sc-val">876 337 605</span>
+                <button class="copy-sm-btn" onclick="copyCode('876337605')">Copy</button>
+              </div>
+            </div>
+
+            <div class="tune-pill-card">
+              <div>
+                <span class="tuner-badge tb-django">u/BigHeadDjango</span>
+                <div class="tune-car-name">1995 Ferrari F50</div>
+                <div class="tune-detail-text">A Road v3 Rear Aero Stock Look. Added rally tires for maximum street grip through River Descent hairpins.</div>
+              </div>
+              <div class="sharecode-row">
+                <span class="sc-val">108 312 809</span>
+                <button class="copy-sm-btn" onclick="copyCode('108312809')">Copy</button>
+              </div>
+            </div>
+
+            <div class="tune-pill-card">
+              <div>
+                <span class="tuner-badge tb-django">u/BigHeadDjango</span>
+                <div class="tune-car-name">1993 Jaguar XJ220S TWR</div>
+                <div class="tune-detail-text">A Road v1 Stock Aero Stock Look. 7 gears, classic British supercar with immense straight-line speed.</div>
+              </div>
+              <div class="sharecode-row">
+                <span class="sc-val">126 736 842</span>
+                <button class="copy-sm-btn" onclick="copyCode('126736842')">Copy</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. CHAMPIONSHIP 2: CROSS COUNTRY HEROES -->
+    <div class="section-block" data-section="championship">
+      <div class="card collapsible-card" data-card-id="s05_champ2">
+        <div class="card-header">
+          <div class="card-title-wrap">
+            <span class="collapse-arrow">▼</span>
+            <span class="card-title">🏁 Championship 2: "Cross Country Heroes"</span>
+          </div>
+          <div class="badge-group">
+            <span class="badge badge-pts">5 PTS • Sports Utility Heroes A 700 • Cross Country (Circuits &amp; Sprint)</span>
+          </div>
+        </div>
+        <div class="collapsible-content">
+          <div class="item-check-row" data-id="s05_task_champ2" data-points="5">
+            <input type="checkbox" id="task_s05_champ2">
+            <div class="task-content">
+              <div class="task-title">Cross Country: Edagawa (Circuit), City Docks (Circuit), Shinjuku Gyoen (Sprint)</div>
+              <div class="task-desc">Race Type: <strong>Cross Country</strong> • Course Types: <strong>2 Circuits (Lap-Based), 1 Sprint (Point-to-Point)</strong> • Restrictions: <strong>Sports Utility Heroes (Class A 700)</strong></div>
+              <div class="reward-pill">🎁 2020 Land Rover Defender 110 X + 5 Pts</div>
+            </div>
+          </div>
+
+          <div class="tunes-subgrid">
+            <div class="tune-pill-card">
+              <div>
+                <span class="tuner-badge tb-paper">u/PaperHeartZero</span>
+                <div class="tune-car-name">2019 Lamborghini Urus</div>
+                <div class="tune-detail-text">A 700 XC. Built for the free gift car everyone owns—plenty of grip and easy launch over cross-country terrain.</div>
+              </div>
+              <div class="sharecode-row">
+                <span class="sc-val">211 634 215</span>
+                <button class="copy-sm-btn" onclick="copyCode('211634215')">Copy</button>
+              </div>
+            </div>
+
+            <div class="tune-pill-card">
+              <div>
+                <span class="tuner-badge tb-paper">u/PaperHeartZero</span>
+                <div class="tune-car-name">1992 GMC Typhoon</div>
+                <div class="tune-detail-text">A 700 XC v2. Reworked handling for better response—the iconic exotic-beating sister to the Syclone.</div>
+              </div>
+              <div class="sharecode-row">
+                <span class="sc-val">129 168 198</span>
+                <button class="copy-sm-btn" onclick="copyCode('129168198')">Copy</button>
+              </div>
+            </div>
+
+            <div class="tune-pill-card">
+              <div>
+                <span class="tuner-badge tb-beau">ollumi</span>
+                <div class="tune-car-name">2015 Land Rover RR Sport SVR</div>
+                <div class="tune-detail-text">Exceptional high-ride suspension stability on rough city docks terrain and water crossings.</div>
+              </div>
+              <div class="sharecode-row">
+                <span class="sc-val">128 948 305</span>
+                <button class="copy-sm-btn" onclick="copyCode('128948305')">Copy</button>
+              </div>
+            </div>
+
+            <div class="tune-pill-card">
+              <div>
+                <span class="tuner-badge tb-beau">ollumi</span>
+                <div class="tune-car-name">2021 Aston Martin DBX</div>
+                <div class="tune-detail-text">Agile British luxury SUV. Fantastic cornering balance and smooth landing dampening over stadium jumps.</div>
+              </div>
+              <div class="sharecode-row">
+                <span class="sc-val">117 906 752</span>
+                <button class="copy-sm-btn" onclick="copyCode('117906752')">Copy</button>
+              </div>
+            </div>
+
+            <div class="tune-pill-card">
+              <div>
+                <span class="tuner-badge tb-django">u/BigHeadDjango</span>
+                <div class="tune-car-name">2011 BMW X5 M</div>
+                <div class="tune-detail-text">A CC v1 No Aero Stock Look. Meta car, fast acceleration, excellent handling and high A-class top speed.</div>
+              </div>
+              <div class="sharecode-row">
+                <span class="sc-val">486 232 008</span>
+                <button class="copy-sm-btn" onclick="copyCode('486232008')">Copy</button>
+              </div>
+            </div>
+
+            <div class="tune-pill-card">
+              <div>
+                <span class="tuner-badge tb-django">u/BigHeadDjango</span>
+                <div class="tune-car-name">2018 Porsche Cayenne Turbo</div>
+                <div class="tune-detail-text">A CC v1 No Aero Stock Look. Fast, strong braking, high-profile rear tires for cross-country bumps.</div>
+              </div>
+              <div class="sharecode-row">
+                <span class="sc-val">122 099 064</span>
+                <button class="copy-sm-btn" onclick="copyCode('122099064')">Copy</button>
+              </div>
+            </div>
+
+            <div class="tune-pill-card">
+              <div>
+                <span class="tuner-badge tb-django">u/BigHeadDjango</span>
+                <div class="tune-car-name">2015 Land Rover RR Sport SVR</div>
+                <div class="tune-detail-text">A CC v1 No Aero Stock Look. High-profile rear tires, good acceleration through deep mud sections.</div>
+              </div>
+              <div class="sharecode-row">
+                <span class="sc-val">561 646 477</span>
+                <button class="copy-sm-btn" onclick="copyCode('561646477')">Copy</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 7. HORIZON LIFE - DRIFT ATTACK -->
+    <div class="section-block" data-section="prstunt">
+      <div class="card collapsible-card" data-card-id="s05_pr_drift">
+        <div class="card-header">
+          <div class="card-title-wrap">
+            <span class="collapse-arrow">▼</span>
+            <span class="card-title">🌀 Horizon Life - Drift Attack: Shimanoyama Circuit</span>
+          </div>
+          <div class="badge-group">
+            <span class="badge badge-pts">3 PTS • Anything Goes • Drift Circuit</span>
+          </div>
+        </div>
+        <div class="collapsible-content">
+          <div class="item-check-row" data-id="s05_task_pr_drift" data-points="3">
+            <input type="checkbox" id="task_s05_pr_drift">
+            <div class="task-content">
+              <div class="task-title">Drift Attack (Shimanoyama Circuit • Target: 60,000 PTS)</div>
+              <div class="task-desc">Event Type: <strong>Drift Attack</strong> • Course Type: <strong>Closed Circuit (Lap-Based with Clipping Zones)</strong> • Restrictions: <strong>Anything Goes</strong></div>
+              <div class="reward-pill">🎁 Wheelspin + 3 Pts</div>
+            </div>
+          </div>
+          <div class="tip-box">
+            <strong>Pro Tip:</strong> Use the newly unlocked <strong>1990 Jaguar XJ-S Forza Edition</strong> from the Drift Attack campaign, or any favorite drift formula car. Clipping zones multiply points significantly.
+          </div>
+
+          <div class="tunes-subgrid">
+            <div class="tune-pill-card">
+              <div>
+                <span class="tuner-badge tb-django">u/BigHeadDjango</span>
+                <div class="tune-car-name">2013 FD #777 Corvette</div>
+                <div class="tune-detail-text">Godlike Drifting tune by Kenpai TDG. Massive angle extension through clipping zones.</div>
+              </div>
+              <div class="sharecode-row">
+                <span class="sc-val">154 970 947</span>
+                <button class="copy-sm-btn" onclick="copyCode('154970947')">Copy</button>
+              </div>
+            </div>
+
+            <div class="tune-pill-card">
+              <div>
+                <span class="tuner-badge tb-django">u/BigHeadDjango</span>
+                <div class="tune-car-name">1993 Autozam AZ-1</div>
+                <div class="tune-detail-text">Horizon Drift Meta by OxGRIDRUNR. Micro-wheelbase drift monster for technical hairpins.</div>
+              </div>
+              <div class="sharecode-row">
+                <span class="sc-val">146 610 320</span>
+                <button class="copy-sm-btn" onclick="copyCode('146610320')">Copy</button>
+              </div>
+            </div>
+
+            <div class="tune-pill-card">
+              <div>
+                <span class="tuner-badge tb-django">u/BigHeadDjango</span>
+                <div class="tune-car-name">2007 FD #117 599 GTB</div>
+                <div class="tune-detail-text">S1 AWD Drift - Tight Zones by OxGRIDRUNR. Custom rims, smooth transition recovery.</div>
+              </div>
+              <div class="sharecode-row">
+                <span class="sc-val">171 123 436</span>
+                <button class="copy-sm-btn" onclick="copyCode('171123436')">Copy</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 8. PR STUNT: DANGER SIGN -->
+    <div class="section-block" data-section="prstunt">
+      <div class="card collapsible-card" data-card-id="s05_pr_danger">
+        <div class="card-header">
+          <div class="card-title-wrap">
+            <span class="collapse-arrow">▼</span>
+            <span class="card-title">🪂 PR Stunt - Danger Sign: "Irokawa Launch"</span>
+          </div>
+          <div class="badge-group">
+            <span class="badge badge-pts">2 PTS • UK A 700 • Danger Sign (918.6 ft)</span>
+          </div>
+        </div>
+        <div class="collapsible-content">
+          <div class="item-check-row" data-id="s05_task_pr_danger" data-points="2">
+            <input type="checkbox" id="task_s05_pr_danger">
+            <div class="task-content">
+              <div class="task-title">Jump 918.6 ft (280.0 m) at Irokawa Launch</div>
+              <div class="task-desc">Requirement: United Kingdom vehicle in Class A 700. Take a long run-up along the approach dirt road. <em>(Stock options per u/PaperHeartZero: 1992 Jaguar XJ220 or TVR Sagaris)</em></div>
+              <div class="reward-pill">🎁 Wheelspin + 2 Pts</div>
+            </div>
+          </div>
+
+          <div class="tunes-subgrid">
+            <div class="tune-pill-card">
+              <div>
+                <span class="tuner-badge tb-beau">ollumi</span>
+                <div class="tune-car-name">1961 Jaguar E-Type</div>
+                <div class="tune-detail-text">Strong A-Class dirt approach build. Excellent ramp compression and level airborne trajectory.</div>
+              </div>
+              <div class="sharecode-row">
+                <span class="sc-val">677 050 859</span>
+                <button class="copy-sm-btn" onclick="copyCode('677050859')">Copy</button>
+              </div>
+            </div>
+
+            <div class="tune-pill-card">
+              <div>
+                <span class="tuner-badge tb-beau">ollumi</span>
+                <div class="tune-car-name">1990 Jaguar XJ-S</div>
+                <div class="tune-detail-text">Budget Autoshow power build. Tremendous straight-line acceleration (TCR Recommended).</div>
+              </div>
+              <div class="sharecode-row">
+                <span class="sc-val">120 107 104</span>
+                <button class="copy-sm-btn" onclick="copyCode('120107104')">Copy</button>
+              </div>
+            </div>
+
+            <div class="tune-pill-card">
+              <div>
+                <span class="tuner-badge tb-django">u/BigHeadDjango</span>
+                <div class="tune-car-name">2020 Land Rover Defender 110 X</div>
+                <div class="tune-detail-text">A Dirt CC v1. Start ~869 yards away in the south-west road corner for full ramp speed.</div>
+              </div>
+              <div class="sharecode-row">
+                <span class="sc-val">458 181 561</span>
+                <button class="copy-sm-btn" onclick="copyCode('458181561')">Copy</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 9. PR STUNT: SPEED TRAP -->
+    <div class="section-block" data-section="prstunt">
+      <div class="card collapsible-card" data-card-id="s05_pr_speed">
+        <div class="card-header">
+          <div class="card-title-wrap">
+            <span class="collapse-arrow">▼</span>
+            <span class="card-title">⚡ PR Stunt - Speed Trap: "Riverside"</span>
+          </div>
+          <div class="badge-group">
+            <span class="badge badge-pts">2 PTS • UK S1 800 • Speed Trap (170.0 mph)</span>
+          </div>
+        </div>
+        <div class="collapsible-content">
+          <div class="item-check-row" data-id="s05_task_pr_speed" data-points="2">
+            <input type="checkbox" id="task_s05_pr_speed">
+            <div class="task-content">
+              <div class="task-title">Trigger Riverside Speed Trap at 170.0 mph (273.6 km/h)</div>
+              <div class="task-desc">Requirement: United Kingdom vehicle in Class S1 800. Carry speed smoothly through the river curve. <em>(Stock options per u/PaperHeartZero: 1993 Jaguar XJ220S TWR or TVR Cerbera)</em></div>
+              <div class="reward-pill">🎁 Wheelspin + 2 Pts</div>
+            </div>
+          </div>
+
+          <div class="tunes-subgrid">
+            <div class="tune-pill-card">
+              <div>
+                <span class="tuner-badge tb-beau">ollumi</span>
+                <div class="tune-car-name">2021 McLaren 620R</div>
+                <div class="tune-detail-text">Meta S1 setup. Rapid sprint gearing clears the speed camera well beyond 180+ mph.</div>
+              </div>
+              <div class="sharecode-row">
+                <span class="sc-val">439 741 670</span>
+                <button class="copy-sm-btn" onclick="copyCode('439741670')">Copy</button>
+              </div>
+            </div>
+
+            <div class="tune-pill-card">
+              <div>
+                <span class="tuner-badge tb-django">MayuriSakura</span>
+                <div class="tune-car-name">1997 Lotus Elise GT1</div>
+                <div class="tune-detail-text">Cross Country tire high-grip build. Effortlessly carves the approach curve flat out.</div>
+              </div>
+              <div class="sharecode-row">
+                <span class="sc-val">169 636 457</span>
+                <button class="copy-sm-btn" onclick="copyCode('169636457')">Copy</button>
+              </div>
+            </div>
+
+            <div class="tune-pill-card">
+              <div>
+                <span class="tuner-badge tb-django">u/BigHeadDjango</span>
+                <div class="tune-car-name">2014 McLaren 650S Spider</div>
+                <div class="tune-detail-text">S1 Road v1 Body Kit. Start ~0.7 miles (1.1 km) away at the north XP board for a straight 180+ mph run.</div>
+              </div>
+              <div class="sharecode-row">
+                <span class="sc-val">166 316 497</span>
+                <button class="copy-sm-btn" onclick="copyCode('166316497')">Copy</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 10. PR STUNT: TRAILBLAZER -->
+    <div class="section-block" data-section="prstunt">
+      <div class="card collapsible-card" data-card-id="s05_pr_trail">
+        <div class="card-header">
+          <div class="card-title-wrap">
+            <span class="collapse-arrow">▼</span>
+            <span class="card-title">🌲 PR Stunt - Trailblazer: "Kodachi Descent"</span>
+          </div>
+          <div class="badge-group">
+            <span class="badge badge-pts">2 PTS • UK B 600 • Trailblazer (30.0s)</span>
+          </div>
+        </div>
+        <div class="collapsible-content">
+          <div class="item-check-row" data-id="s05_task_pr_trail" data-points="2">
+            <input type="checkbox" id="task_s05_pr_trail">
+            <div class="task-content">
+              <div class="task-title">Complete with 30.0 Seconds Remaining</div>
+              <div class="task-desc">Requirement: United Kingdom vehicle in Class B 600. Drop straight down the hillside onto the road.</div>
+              <div class="reward-pill">🎁 Wheelspin + 2 Pts</div>
+            </div>
+          </div>
+
+          <div class="tunes-subgrid">
+            <div class="tune-pill-card">
+              <div>
+                <span class="tuner-badge tb-paper">u/PaperHeartZero</span>
+                <div class="tune-car-name">2013 MINI X-Raid Countryman</div>
+                <div class="tune-detail-text">B 600 Cross Country. Absorbs rocky slopes with stability, giving an easy downhill run to beat the 30s target.</div>
+              </div>
+              <div class="sharecode-row">
+                <span class="sc-val">138 039 420</span>
+                <button class="copy-sm-btn" onclick="copyCode('138039420')">Copy</button>
+              </div>
+            </div>
+
+            <div class="tune-pill-card">
+              <div>
+                <span class="tuner-badge tb-beau">GreetedDust8</span>
+                <div class="tune-car-name">2015 Land Rover RR Sport SVR</div>
+                <div class="tune-detail-text">Brute-force hillside descent setup. Clears obstacles directly onto the tarmac with 3+ seconds to spare.</div>
+              </div>
+              <div class="sharecode-row">
+                <span class="sc-val">175 305 746</span>
+                <button class="copy-sm-btn" onclick="copyCode('175305746')">Copy</button>
+              </div>
+            </div>
+
+            <div class="tune-pill-card">
+              <div>
+                <span class="tuner-badge tb-django">u/BigHeadDjango</span>
+                <div class="tune-car-name">2015 Land Rover RR Sport SVR</div>
+                <div class="tune-detail-text">B Dirt CC v1 No Aero. Spawn at SE dirt corner ~547 yards away, head straight line jumping the hills.</div>
+              </div>
+              <div class="sharecode-row">
+                <span class="sc-val">137 970 549</span>
+                <button class="copy-sm-btn" onclick="copyCode('137970549')">Copy</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 11. SEASONAL JOB: FOOD DELIVERY -->
+    <div class="section-block" data-section="challenge">
+      <div class="card collapsible-card" data-card-id="s05_job">
+        <div class="card-header">
+          <div class="card-title-wrap">
+            <span class="collapse-arrow">▼</span>
+            <span class="card-title">🛵 Seasonal Job: Tokyo City Food Delivery</span>
+          </div>
+          <div class="badge-group">
+            <span class="badge badge-pts">3 PTS • Food Delivery Job</span>
+          </div>
+        </div>
+        <div class="collapsible-content">
+          <div class="item-check-row" data-id="s05_task_job" data-points="3">
+            <input type="checkbox" id="task_s05_job">
+            <div class="task-content">
+              <div class="task-title">Complete a Full Shift (3 Deliveries)</div>
+              <div class="task-desc">Head to the Tokyo City Food Delivery hub and finish a full 3-delivery shift. Auto-Drive via Anna can be toggled on to automate completion.</div>
+              <div class="reward-pill">🎁 "Action!!!" (Forza Link) + 3 Pts</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 12. THE TRIAL: TRAILS GALORE -->
+    <div class="section-block" data-section="online">
+      <div class="card collapsible-card" data-card-id="s05_trial">
+        <div class="card-header">
+          <div class="card-title-wrap">
+            <span class="collapse-arrow">▼</span>
+            <span class="card-title">⚡ Horizon Life - The Trial: "Trails Galore"</span>
+          </div>
+          <div class="badge-group">
+            <span class="badge badge-pts">10 PTS • Total Buggies &amp; Offroad A 700 • Dirt Trails</span>
+          </div>
+        </div>
+        <div class="collapsible-content">
+          <div class="item-check-row" data-id="s05_task_trial" data-points="10">
+            <input type="checkbox" id="task_s05_trial">
+            <div class="task-content">
+              <div class="task-title">Dirt Racing: Waterfall Trail (Trail), Takashiro Trail (Trail), Nukabira Trail (Trail)</div>
+              <div class="task-desc">Race Type: <strong>Dirt Racing (Co-op vs Unbeatable AI)</strong> • Course Types: <strong>All Trails (Point-to-Point Dirt)</strong> • Restrictions: <strong>Total Buggies &amp; Offroad (Class A 700)</strong></div>
+              <div class="reward-pill">🎁 2010 Noble M600 + 10 Pts</div>
+            </div>
+          </div>
+
+          <div class="tip-box">
+            <strong>Pro Tip:</strong> "Total Buggies &amp; Offroad" includes trucks and pickups! If you struggle with twitchy buggies, run the 1991 GMC Syclone or Ford F-450 Platinum FE for much greater stability and collision resistance.
+          </div>
+
+          <div class="tunes-subgrid">
+            <div class="tune-pill-card">
+              <div>
+                <span class="tuner-badge tb-paper">u/PaperHeartZero</span>
+                <div class="tune-car-name">1997 Mitsubishi Montero Evo</div>
+                <div class="tune-detail-text">A 700 Dirt. Specially rally-tuned to drive like an agile rally car rather than a bulky truck on dirt trails.</div>
+              </div>
+              <div class="sharecode-row">
+                <span class="sc-val">271 501 553</span>
+                <button class="copy-sm-btn" onclick="copyCode('271501553')">Copy</button>
+              </div>
+            </div>
+
+            <div class="tune-pill-card">
+              <div>
+                <span class="tuner-badge tb-paper">u/PaperHeartZero</span>
+                <div class="tune-car-name">2018 Mercedes-Benz X-Class</div>
+                <div class="tune-detail-text">A 700 XC. The fastest truck option in the category—strong top speed and composed handling.</div>
+              </div>
+              <div class="sharecode-row">
+                <span class="sc-val">122 271 839</span>
+                <button class="copy-sm-btn" onclick="copyCode('122271839')">Copy</button>
+              </div>
+            </div>
+
+            <div class="tune-pill-card">
+              <div>
+                <span class="tuner-badge tb-paper">u/PaperHeartZero</span>
+                <div class="tune-car-name">2022 Subaru BRZ FE</div>
+                <div class="tune-detail-text">A 700 Offroad. Compact footprint and nimble weight distribution compared to heavy pickups.</div>
+              </div>
+              <div class="sharecode-row">
+                <span class="sc-val">152 098 274</span>
+                <button class="copy-sm-btn" onclick="copyCode('152098274')">Copy</button>
+              </div>
+            </div>
+
+            <div class="tune-pill-card">
+              <div>
+                <span class="tuner-badge tb-beau">ollumi</span>
+                <div class="tune-car-name">1991 GMC Syclone</div>
+                <div class="tune-detail-text">Meta Trial AWD build. Tuned specifically to eliminate rear-end snap oversteer on bumpy trail transitions.</div>
+              </div>
+              <div class="sharecode-row">
+                <span class="sc-val">948 525 930</span>
+                <button class="copy-sm-btn" onclick="copyCode('948525930')">Copy</button>
+              </div>
+            </div>
+
+            <div class="tune-pill-card">
+              <div>
+                <span class="tuner-badge tb-beau">ollumi</span>
+                <div class="tune-car-name">2020 Ford F-450 Platinum FE</div>
+                <div class="tune-detail-text">Heavyweight tank build. Extremely resilient against aggressive AI bumping and slippery mud ruts.</div>
+              </div>
+              <div class="sharecode-row">
+                <span class="sc-val">102 619 201</span>
+                <button class="copy-sm-btn" onclick="copyCode('102619201')">Copy</button>
+              </div>
+            </div>
+
+            <div class="tune-pill-card">
+              <div>
+                <span class="tuner-badge tb-django">u/BigHeadDjango</span>
+                <div class="tune-car-name">2018 Mercedes-Benz X-Class</div>
+                <div class="tune-detail-text">A Dirt CC v3 Meta No Aero. Reworked suspension and differential—crushes Unbeatable AI with ease.</div>
+              </div>
+              <div class="sharecode-row">
+                <span class="sc-val">646 944 987</span>
+                <button class="copy-sm-btn" onclick="copyCode('646944987')">Copy</button>
+              </div>
+            </div>
+
+            <div class="tune-pill-card">
+              <div>
+                <span class="tuner-badge tb-django">u/BigHeadDjango</span>
+                <div class="tune-car-name">1991 GMC Syclone</div>
+                <div class="tune-detail-text">A Dirt CC v3 Meta No Aero. Added rally suspension for smoother landing damping and high top speed.</div>
+              </div>
+              <div class="sharecode-row">
+                <span class="sc-val">180 789 825</span>
+                <button class="copy-sm-btn" onclick="copyCode('180789825')">Copy</button>
+              </div>
+            </div>
+
+            <div class="tune-pill-card">
+              <div>
+                <span class="tuner-badge tb-django">u/BigHeadDjango</span>
+                <div class="tune-car-name">2012 Jeep Wrangler Rubicon</div>
+                <div class="tune-detail-text">A Dirt CC v2 No Aero. 6 gears, high-profile rear tires, forgiving baseline off-road handling.</div>
+              </div>
+              <div class="sharecode-row">
+                <span class="sc-val">689 551 960</span>
+                <button class="copy-sm-btn" onclick="copyCode('689551960')">Copy</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 13. HORIZON PLAY: STUNT PARTY -->
+    <div class="section-block" data-section="online">
+      <div class="card collapsible-card" data-card-id="s05_online">
+        <div class="card-header">
+          <div class="card-title-wrap">
+            <span class="collapse-arrow">▼</span>
+            <span class="card-title">🌐 Horizon Play Events</span>
+          </div>
+          <div class="badge-group">
+            <span class="badge badge-pts">3 PTS TOTAL</span>
+          </div>
+        </div>
+        <div class="collapsible-content">
+          <div class="item-check-row" data-id="s05_task_stunt_party" data-points="3">
+            <input type="checkbox" id="task_s05_stunt_party">
+            <div class="task-content">
+              <div class="task-title">Horizon Stunt Party: Complete any Stunt Party</div>
+              <div class="task-desc">Join any freeroam Stunt Party session (runs at the top of every hour: Chaos, Drift, Speed, or Wreckage).</div>
+              <div class="reward-pill">🎁 "The Robot" (Emote) + 3 Pts</div>
+            </div>
+          </div>
+          <div style="margin-top: 14px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 10px;">
+            <div style="font-size: 13px; font-weight: 700; color: var(--accent-cyan); margin-bottom: 8px;">🛠️ BigHeadDjango's Easy-Win EventLab Blueprints:</div>
+            <ul class="meta-list" style="font-size: 12px;">
+              <li class="meta-item"><span class="meta-label">Easy Win Road Sprint:</span> <span class="sc-val">101 638 582</span></li>
+              <li class="meta-item"><span class="meta-label">Easy Win Road Circuit:</span> <span class="sc-val">161 320 434</span></li>
+              <li class="meta-item"><span class="meta-label">Easy Win Dirt Trail Sprint:</span> <span class="sc-val">850 790 624</span></li>
+              <li class="meta-item"><span class="meta-label">Easy Win Cross Country Sprint:</span> <span class="sc-val">146 632 814</span></li>
+            </ul>
+          </div>
+
+          <div style="margin-top: 14px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 10px;">
+            <div style="font-size: 13px; font-weight: 700; color: var(--accent-yellow); margin-bottom: 8px;">⚡ Universal X-Class PR Stunt Tunes (2015 Ultima Evolution Coupe 1020):</div>
+            <ul class="meta-list" style="font-size: 12px;">
+              <li class="meta-item"><span class="meta-label">Road PR Stunts v1 Stock Aero (150k Autoshow Car):</span> <span class="sc-val">159 335 837</span></li>
+              <li class="meta-item"><span class="meta-label">Offroad PR Stunts v1 Stock Aero (Anti-lag):</span> <span class="sc-val">100 819 180</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      Forza Horizon 6 • Festival Playlist &amp; Tunes Dashboard • Series 05 Week 1 (Summer) • Updated September 10, 2026
+    </footer>
+  </div>
+
+  <div id="toast">Copied to clipboard!</div>
+
+  <script>
+    function copyCode(code) {
+      navigator.clipboard.writeText(code).then(() => {
+        const toast = document.getElementById('toast');
+        toast.textContent = "Copied: " + code;
+        toast.className = "show";
+        setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 2000);
+      });
+    }
+
+    // Checkbox Progress Tracking
+    const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+    const progressBar = document.getElementById('progressBar');
+    const progressPct = document.getElementById('progressPct');
+    const completedCount = document.getElementById('completedCount');
+    const totalCount = document.getElementById('totalCount');
+
+    totalCount.textContent = checkboxes.length;
+
+    function updateProgress() {
+      let checked = 0;
+      let collectedPts = 0;
+      checkboxes.forEach((cb) => {
+        const parent = cb.closest('.item-check-row');
+        const id = parent ? parent.getAttribute('data-id') : null;
+        const pts = parent && parent.getAttribute('data-points') ? parseInt(parent.getAttribute('data-points'), 10) : 0;
+        if (cb.checked) {
+          checked++;
+          collectedPts += pts;
+          if (parent) parent.classList.add('checked-task');
+          if (id) localStorage.setItem('fh6_s05_w1_v7_' + id, 'true');
+        } else {
+          if (parent) parent.classList.remove('checked-task');
+          if (id) localStorage.removeItem('fh6_s05_w1_v7_' + id);
+        }
+      });
+      const pct = Math.round((checked / checkboxes.length) * 100);
+      progressBar.style.width = pct + '%';
+      progressPct.textContent = pct + '%';
+      completedCount.textContent = checked;
+
+      const collectedPtsEl = document.getElementById('collectedPoints');
+      const rewardPointsMinEl = document.getElementById('rewardPointsMin');
+      const rewardPointsMaxEl = document.getElementById('rewardPointsMax');
+
+      if (collectedPtsEl) collectedPtsEl.textContent = collectedPts + ' Pts';
+      if (rewardPointsMinEl) {
+        if (collectedPts >= 20) {
+          rewardPointsMinEl.innerHTML = '<span style="color:var(--accent-green); font-weight:700;">' + Math.min(collectedPts, 20) + '/20 Pts Min (Unlocked! ✓)</span>';
+        } else {
+          rewardPointsMinEl.textContent = collectedPts + '/20 Pts Min';
+        }
+      }
+      if (rewardPointsMaxEl) {
+        if (collectedPts >= 40) {
+          rewardPointsMaxEl.innerHTML = '<span style="color:var(--accent-green); font-weight:700;">' + Math.min(collectedPts, 40) + '/40 Pts Max (Unlocked! ✓)</span>';
+        } else {
+          rewardPointsMaxEl.textContent = collectedPts + '/40 Pts Max';
+        }
+      }
+    }
+
+    checkboxes.forEach((cb) => {
+      const parent = cb.closest('.item-check-row');
+      const id = parent ? parent.getAttribute('data-id') : null;
+      if (id && localStorage.getItem('fh6_s05_w1_v7_' + id) === 'true') {
+        cb.checked = true;
+      }
+      cb.addEventListener('change', updateProgress);
+    });
+
+    updateProgress();
+
+    // Persistent Collapsible State
+    const collapsibleCards = document.querySelectorAll('.collapsible-card');
+    const toggleAllBtn = document.getElementById('toggleAllBtn');
+
+    function updateToggleAllBtnText() {
+      const anyExpanded = Array.from(collapsibleCards).some(c => !c.classList.contains('collapsed'));
+      toggleAllBtn.textContent = anyExpanded ? 'Collapse All ▾' : 'Expand All ▸';
+    }
+
+    collapsibleCards.forEach(card => {
+      const cardId = card.getAttribute('data-card-id');
+      // Restore saved collapsed state
+      if (cardId && localStorage.getItem('fh6_collapse_' + cardId) === 'true') {
+        card.classList.add('collapsed');
+      }
+
+      const header = card.querySelector('.card-header');
+      header.addEventListener('click', (e) => {
+        if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT') return;
+        card.classList.toggle('collapsed');
+        const isCollapsed = card.classList.contains('collapsed');
+        if (cardId) {
+          localStorage.setItem('fh6_collapse_' + cardId, isCollapsed ? 'true' : 'false');
+        }
+        updateToggleAllBtnText();
+      });
+    });
+
+    updateToggleAllBtnText();
+
+    toggleAllBtn.addEventListener('click', () => {
+      const anyExpanded = Array.from(collapsibleCards).some(c => !c.classList.contains('collapsed'));
+      const shouldCollapse = anyExpanded;
+      collapsibleCards.forEach(card => {
+        const cardId = card.getAttribute('data-card-id');
+        if (shouldCollapse) {
+          card.classList.add('collapsed');
+          if (cardId) localStorage.setItem('fh6_collapse_' + cardId, 'true');
+        } else {
+          card.classList.remove('collapsed');
+          if (cardId) localStorage.setItem('fh6_collapse_' + cardId, 'false');
+        }
+      });
+      updateToggleAllBtnText();
+    });
+
+    // Filter Buttons
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    const sections = document.querySelectorAll('.section-block');
+
+    filterBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        filterBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const f = btn.getAttribute('data-filter');
+        sections.forEach(sec => {
+          if (f === 'all' || sec.getAttribute('data-section') === f) {
+            sec.style.display = 'block';
+          } else {
+            sec.style.display = 'none';
+          }
+        });
+      });
+    });
+
+    // Search Input
+    const searchInput = document.getElementById('searchInput');
+    const searchElements = document.querySelectorAll('.item-check-row, .tune-pill-card');
+
+    searchInput.addEventListener('input', (e) => {
+      const q = e.target.value.toLowerCase().trim();
+      searchElements.forEach(el => {
+        const text = el.textContent.toLowerCase();
+        if (!q || text.includes(q)) {
+          el.style.opacity = '1';
+        } else {
+          el.style.opacity = '0.25';
+        }
+      });
+      if (q) {
+        collapsibleCards.forEach(card => card.classList.remove('collapsed'));
+      }
+    });
+  </script>
+</body>
+</html>
