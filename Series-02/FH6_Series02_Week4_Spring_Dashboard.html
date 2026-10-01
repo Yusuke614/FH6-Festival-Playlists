@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forza Horizon 6 - Series 2 Spring Dashboard (Targets & Rewards)</title>
+    <style>
+        :root {
+            --bg-dark: #0a0a0f;
+            --bg-card: #15151e;
+            --text-main: #e0e0e0;
+            --text-muted: #8b8b9e;
+            --neon-pink: #ff00aa;
+            --neon-cyan: #00e5ff;
+            --volt-green: #ccff00;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            padding: 2rem;
+            background-image: radial-gradient(circle at top right, rgba(0, 229, 255, 0.05), transparent 40%),
+                              radial-gradient(circle at bottom left, rgba(255, 0, 170, 0.05), transparent 40%);
+            min-height: 100vh;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #fff;
+            text-shadow: 0 0 10px var(--neon-pink), 0 0 20px var(--neon-pink);
+            margin-bottom: 0.5rem;
+        }
+
+        h2 {
+            font-size: 1.2rem;
+            color: var(--neon-cyan);
+            font-weight: 400;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+        }
+
+        .controls {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            background-color: var(--bg-card);
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            border-left: 4px solid var(--neon-cyan);
+        }
+
+        .filters {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        select, input {
+            background-color: #1e1e2c;
+            border: 1px solid #333344;
+            color: #fff;
+            padding: 0.6rem 1rem;
+            border-radius: 4px;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        select:focus, input:focus {
+            border-color: var(--neon-cyan);
+        }
+
+        .stats {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .stat-item {
+            text-align: right;
+        }
+        .stat-item span {
+            display: block;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--volt-green);
+        }
+
+        .progress-rewards {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        .reward-card {
+            background-color: var(--bg-card);
+            border: 1px solid #2a2a35;
+            border-radius: 8px;
+            padding: 1.5rem;
+            flex: 1;
+            min-width: 300px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            position: relative;
+            overflow: hidden;
+        }
+        .reward-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 4px; height: 100%;
+        }
+        .reward-card.season::before { background-color: var(--neon-pink); }
+        .reward-card.series::before { background-color: var(--volt-green); }
+        .reward-header {
+            font-size: 1.1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+            letter-spacing: 1px;
+        }
+        .reward-card.season .reward-header { color: var(--neon-pink); }
+        .reward-card.series .reward-header { color: var(--volt-green); }
+        .reward-tier {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.8rem 0;
+            border-bottom: 1px dashed rgba(255,255,255,0.1);
+        }
+        .reward-tier:last-child { border-bottom: none; padding-bottom: 0; }
+        .pts-badge {
+            background: rgba(255,255,255,0.1);
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 0.85rem;
+            color: #fff;
+            margin-right: 1rem;
+            display: inline-block;
+            min-width: 70px;
+            text-align: center;
+        }
+        .reward-name {
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: var(--text-main);
+        }
+        .reward-new {
+            font-size: 0.7rem;
+            background: var(--neon-cyan);
+            color: #000;
+            padding: 0.1rem 0.4rem;
+            border-radius: 3px;
+            margin-left: 0.6rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            vertical-align: middle;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            background-color: var(--bg-card);
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+            border: 1px solid #2a2a35;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            table-layout: fixed;
+        }
+
+        th {
+            background-color: #1a1a24;
+            color: var(--neon-cyan);
+            padding: 1.2rem 1rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            cursor: pointer;
+            border-bottom: 2px solid var(--volt-green);
+            position: relative;
+            user-select: none;
+            white-space: nowrap;
+        }
+        
+        th:nth-child(1) { width: 14%; }
+        th:nth-child(2) { width: 14%; }
+        th:nth-child(3) { width: 18%; } /* Expanded slightly to handle normal text flow */
+        th:nth-child(4) { width: 13%; }
+        th:nth-child(5) { width: 17%; }
+        th:nth-child(6) { width: 14%; }
+        th:nth-child(7) { width: 10%; }
+
+        th:hover {
+            background-color: #222230;
+        }
+
+        th::after {
+            content: '\21D5';
+            position: absolute;
+            right: 8px;
+            color: #555;
+            opacity: 0.5;
+        }
+
+        th.asc::after { content: '\2191'; color: var(--volt-green); opacity: 1; }
+        th.desc::after { content: '\2193'; color: var(--volt-green); opacity: 1; }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid #2a2a35;
+            font-size: 0.95rem;
+            vertical-align: top;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background-color: rgba(255, 255, 255, 0.02);
+        }
+
+        .badge-type {
+            background-color: #2a2a3a;
+            color: #fff;
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            border: 1px solid #444;
+            display: inline-block;
+        }
+
+        .setup-container {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .setup-block {
+            height: 72px; /* Rigid alignment lock for tune blocks */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            border-bottom: 1px dashed rgba(255,255,255,0.1);
+            overflow: hidden;
+            padding: 0.2rem 0;
+        }
+        
+        .setup-block:last-child {
+            border-bottom: none;
+        }
+
+        /* Fluid text flow styling for Restrictions and Route info */
+        .fluid-block {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            padding: 0.2rem 0;
+        }
+
+        .fluid-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
+        }
+
+        .setup-tag {
+            font-size: 0.65rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.2rem;
+        }
+        .setup-tag.primary { color: var(--volt-green); }
+        .setup-tag.alt1 { color: var(--neon-pink); }
+        .setup-tag.alt2 { color: var(--neon-cyan); }
+        .setup-tag.alt3 { color: #aaa; }
+        
+        .car-text {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: block;
+            width: 100%;
+        }
+
+        /* Text variant for elements allowed to wrap naturally without truncation */
+        .wrapping-text {
+            white-space: normal;
+            word-wrap: break-word;
+            display: block;
+            line-height: 1.3;
+        }
+
+        .code-pill {
+            background: rgba(255, 0, 170, 0.12);
+            color: #ff88dd;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-family: 'Consolas', monospace;
+            font-weight: bold;
+            border: 1px solid rgba(255, 0, 170, 0.3);
+            display: inline-block;
+            margin-top: 0.1rem;
+            font-size: 0.85rem;
+            width: fit-content;
+        }
+
+        .score-pill {
+            display: inline-block;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 0.8rem;
+            width: fit-content;
+        }
+        .score-high { background-color: rgba(204, 255, 0, 0.12); color: var(--volt-green); border: 1px solid rgba(204, 255, 0, 0.3); }
+        .score-med { background-color: rgba(0, 229, 255, 0.12); color: var(--neon-cyan); border: 1px solid rgba(0, 229, 255, 0.3); }
+        .score-na { background-color: #2a2a35; color: #666; border: 1px solid #444; }
+
+        .reward-vehicle {
+            color: var(--neon-pink);
+            font-weight: 600;
+        }
+        
+        .reward-other {
+            color: #ffd700;
+            font-weight: 600;
+        }
+
+        @media (max-width: 1200px) {
+            .controls { flex-direction: column; align-items: stretch; }
+            .filters { flex-direction: column; }
+            .stats { justify-content: space-between; }
+            table { table-layout: auto; }
+            .car-text { max-width: 200px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Forza Horizon 6</h1>
+        <h2>Series 2: Horizon Decades &bull; Spring Festival Playlist (Week 4: July 9 - July 16)</h2>
+    </header>
+
+    <div class="controls">
+        <div class="filters">
+            <div class="filter-group">
+                <label for="searchFilter">Search Event/Car/Creator</label>
+                <input type="text" id="searchFilter" placeholder="e.g. Honda, awesomebeau..." onkeyup="applyFilters()">
+            </div>
+            <div class="filter-group">
+                <label for="typeFilter">Event Type</label>
+                <select id="typeFilter" onchange="applyFilters()">
+                    <option value="All">All Events</option>
+                    <option value="The Trial">The Trial</option>
+                    <option value="Seasonal Championship">Seasonal Championships</option>
+                    <option value="PR Stunt">PR Stunts</option>
+                    <option value="Drag Meet">Drag Meet</option>
+                    <option value="Horizon Play">Horizon Play</option>
+                    <option value="Weekly Challenge">Weekly Challenge</option>
+                    <option value="Monthly Rivals">Monthly Rivals</option>
+                    <option value="Treasure Hunt">Treasure Hunt</option>
+                    <option value="Photo Challenge">Photo Challenge</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="rewardFilter">Reward Type</label>
+                <select id="rewardFilter" onchange="applyFilters()">
+                    <option value="All">All Rewards</option>
+                    <option value="Vehicle">Vehicles Only</option>
+                    <option value="Credits">Credits & Wheelspins</option>
+                </select>
+            </div>
+        </div>
+        <div class="stats">
+            <div class="stat-item">
+                <div id="eventCount"><span>12</span></div>
+                <label>Events Shown</label>
+            </div>
+        </div>
+    </div>
+
+    <!-- REWARDS SECTION -->
+    <div class="progress-rewards">
+        <div class="reward-card season">
+            <div class="reward-header">Spring Season Rewards</div>
+            <div class="reward-tier">
+                <div>
+                    <span class="pts-badge">20 PTS</span>
+                    <span class="reward-name">2017 Mercedes-AMG GT R</span><span class="reward-new">Exclusive</span>
+                </div>
+            </div>
+            <div class="reward-tier">
+                <div>
+                    <span class="pts-badge">40 PTS</span>
+                    <span class="reward-name">2017 Saleen S7 LM</span>
+                </div>
+            </div>
+        </div>
+        <div class="reward-card series">
+            <div class="reward-header">Series 2 Rewards</div>
+            <div class="reward-tier">
+                <div>
+                    <span class="pts-badge">80 PTS</span>
+                    <span class="reward-name">1993 Porsche 911 Turbo S Leichtbau</span><span class="reward-new">Exclusive</span>
+                </div>
+            </div>
+            <div class="reward-tier">
+                <div>
+                    <span class="pts-badge">160 PTS</span>
+                    <span class="reward-name">2018 Lotus Exige Cup 430</span><span class="reward-new">Exclusive</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-container">
+        <table id="playlistTable">
+            <thead>
+                <tr>
+                    <th onclick="sortTable('type')">Event Type</th>
+                    <th onclick="sortTable('event')">Event Name</th>
+                    <th onclick="sortTable('restriction')">Restriction & Target</th>
+                    <th onclick="sortTable('reward')">Reward</th>
+                    <th onclick="sortTable('car')">Car / Tune Layouts</th>
+                    <th onclick="sortTable('creator')">Creators / Share Codes</th>
+                    <th onclick="sortTable('score')">Scores</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                <!-- Javascript will populate rows -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        const playlistData = [
+            {
+                event: "Ready to Explore",
+                type: "Weekly Challenge",
+                restriction: "2016 Ariel Nomad",
+                target: "Complete 4 Chapters",
+                route: "N/A",
+                reward: "25,000 CR",
+                rewardType: "Credits",
+                tunes: [
+                    { label: "Primary", car: "2016 Ariel Nomad", tune: "A Class Offroad", creator: "awesomebeau", code: "103 239 797", score: 9.8 },
+                    { label: "Alt 1", car: "2016 Ariel Nomad", tune: "Weekly Tune", creator: "Darthsqueaker", code: "640 533 671", score: 9.6 },
+                    { label: "Alt 2", car: "2016 Ariel Nomad", tune: "A Dirt CC v1", creator: "BigHeadDjango", code: "102 441 492", score: 9.5 },
+                    { label: "Alt 3", car: "N/A", tune: "N/A", creator: "N/A", code: "N/A", score: null }
+                ]
+            },
+            {
+                event: "Cut to the Chase",
+                type: "The Trial",
+                restriction: "2010s Modern Muscle (Class A)",
+                target: "Street Racing &bull; Win The Trial",
+                route: "Festival Chase, Minami Chase, Daikoku Chase",
+                reward: "2017 Ford GT",
+                rewardType: "Vehicle",
+                tunes: [
+                    { label: "Primary", car: "2017 Chevrolet Camaro ZL1", tune: "A700 Modern Muscle", creator: "awesomebeau", code: "132 838 053", score: 9.7 },
+                    { label: "Alt 1", car: "2018 Ford Mustang RTR Spec 5", tune: "A-Class", creator: "Darthsqueaker", code: "171 154 684", score: 9.6 },
+                    { label: "Alt 2", car: "2014 HSV Gen-F GTS", tune: "A Road v1", creator: "BigHeadDjango", code: "548 843 733", score: 9.4 },
+                    { label: "Alt 3", car: "2013 SRT Viper GTS", tune: "A700 Modern Muscle", creator: "awesomebeau", code: "798 368 262", score: 9.4 }
+                ]
+            },
+            {
+                event: "Mud, Sweat & Gears",
+                type: "Seasonal Championship",
+                restriction: "2010s Total Buggies & Offroad (Class A)",
+                target: "Cross Country &bull; Win Championship",
+                route: "Shinjuku Gyoen Cross Country, Izu Cross Country, Shimanoyama Cross Country",
+                reward: "2018 Jeep Grand Cherokee Trackhawk",
+                rewardType: "Vehicle",
+                tunes: [
+                    { label: "Primary", car: "2016 Jeep Trailcat", tune: "A700 Buggies/Offroad", creator: "awesomebeau", code: "741 438 190", score: 9.8 },
+                    { label: "Alt 1", car: "2016 Jeep Trailcat", tune: "A-Class", creator: "Darthsqueaker", code: "118 827 344", score: 9.6 },
+                    { label: "Alt 2", car: "2018 Mercedes-Benz X-Class", tune: "A Dirt CC v1", creator: "BigHeadDjango", code: "789 556 180", score: 9.5 },
+                    { label: "Alt 3", car: "2019 Casie Currie Trophy Jeep", tune: "A700 Buggies/Offroad", creator: "awesomebeau", code: "141 355 210", score: 9.4 }
+                ]
+            },
+            {
+                event: "Are Ya Winning, S1?",
+                type: "Seasonal Championship",
+                restriction: "2010s Modern Supercars (Class S1)",
+                target: "Road Racing &bull; Win Championship",
+                route: "Satta Sprint, Shirakawa Circuit, Shikiasai Sprint",
+                reward: "2016 Ariel Nomad",
+                rewardType: "Vehicle",
+                tunes: [
+                    { label: "Primary", car: "2014 McLaren 650S Spider", tune: "S1 Modern Supercars", creator: "awesomebeau", code: "133 686 509", score: 9.8 },
+                    { label: "Alt 1", car: "2012 Lambo Gallardo LP570-4", tune: "S1-Class", creator: "Darthsqueaker", code: "706 915 245", score: 9.6 },
+                    { label: "Alt 2", car: "2014 McLaren 650S Spider", tune: "S1 Road v1", creator: "BigHeadDjango", code: "166 316 497", score: 9.5 },
+                    { label: "Alt 3", car: "2014 Lamborghini Huracan LP 610-4", tune: "S1 Modern Supercars", creator: "awesomebeau", code: "174 915 595", score: 9.4 }
+                ]
+            },
+            {
+                event: "Festival Kilometer",
+                type: "Drag Meet",
+                restriction: "2010s (Class S2)",
+                target: "18.000 seconds or faster",
+                route: "N/A",
+                reward: "Wheelspin",
+                rewardType: "Credits",
+                tunes: [
+                    { label: "Primary", car: "2010 Lexus LFA Forza Edition", tune: "S2 900 Drag", creator: "awesomebeau", code: "259 588 491", score: 9.7 },
+                    { label: "Alt 1", car: "2012 Nissan GT-R FE", tune: "S2-Class", creator: "Darthsqueaker", code: "121 822 194", score: 9.5 },
+                    { label: "Alt 2", car: "2015 Ultima Evolution Coupe 1020", tune: "S2 PR Only", creator: "BigHeadDjango", code: "149 079 852", score: 9.4 },
+                    { label: "Alt 3", car: "2014 Porsche 918 Spyder", tune: "S2 900 Drag", creator: "awesomebeau", code: "112 506 231", score: 9.3 }
+                ]
+            },
+            {
+                event: "Rollercoaster Leap",
+                type: "PR Stunt - Danger Sign",
+                restriction: "2010s (Class S2)",
+                target: "967.8 feet",
+                route: "N/A",
+                reward: "Wheelspin",
+                rewardType: "Credits",
+                tunes: [
+                    { label: "Primary", car: "2010 Lexus LFA Forza Edition", tune: "S2 900 Danger Sign", creator: "awesomebeau", code: "259 588 491", score: 9.7 },
+                    { label: "Alt 1", car: "2019 McLaren Speedtail", tune: "S2-Class", creator: "Darthsqueaker", code: "180 133 355", score: 9.5 },
+                    { label: "Alt 2", car: "2015 Ultima Evolution Coupe 1020", tune: "S2 PR Only", creator: "BigHeadDjango", code: "149 079 852", score: 9.4 },
+                    { label: "Alt 3", car: "2014 Porsche 918 Spyder", tune: "S2 900 Danger Sign", creator: "awesomebeau", code: "112 506 231", score: 9.3 }
+                ]
+            },
+            {
+                event: "Ito Straight",
+                type: "PR Stunt - Speed Trap",
+                restriction: "2010s (Class S2)",
+                target: "205.0 mph",
+                route: "N/A",
+                reward: "Wheelspin",
+                rewardType: "Credits",
+                tunes: [
+                    { label: "Primary", car: "2012 Nissan GT-R FE", tune: "No Tune Necessary", creator: "awesomebeau", code: "N/A", score: 9.7 },
+                    { label: "Alt 1", car: "2019 McLaren Speedtail", tune: "S2-Class", creator: "Darthsqueaker", code: "180 133 355", score: 9.5 },
+                    { label: "Alt 2", car: "2015 Ultima Evolution Coupe 1020", tune: "S2 PR Only", creator: "BigHeadDjango", code: "149 079 852", score: 9.4 },
+                    { label: "Alt 3", car: "2014 Porsche 918 Spyder", tune: "S2 900 Speed Trap", creator: "awesomebeau", code: "112 506 231", score: 9.3 }
+                ]
+            },
+            {
+                event: "River Run",
+                type: "PR Stunt - Drift Zone",
+                restriction: "2010s (Class S1)",
+                target: "140,000 points",
+                route: "N/A",
+                reward: "Wheelspin",
+                rewardType: "Credits",
+                tunes: [
+                    { label: "Primary", car: "2013 Wuling Sunshine S", tune: "S1 800 Drift", creator: "awesomebeau", code: "116 593 269", score: 9.7 },
+                    { label: "Alt 1", car: "2019 DeBerti Toyota Tacoma TRD", tune: "S1-Class Drift", creator: "Darthsqueaker", code: "137 607 596", score: 9.5 },
+                    { label: "Alt 2", car: "2017 Ford Focus RS", tune: "AWD Drift", creator: "BigHeadDjango", code: "769 681 911", score: 9.4 },
+                    { label: "Alt 3", car: "2019 Deberti Toyota Tacoma TRD", tune: "AWD Drift", creator: "BigHeadDjango", code: "140 038 785", score: 9.3 }
+                ]
+            },
+            {
+                event: "Monster High",
+                type: "Horizon Play - Custom Racing",
+                restriction: "Rally Monster",
+                target: "Earn 3 Awesome Air Skills",
+                route: "N/A",
+                reward: "2018 Audi RS 4 Avant",
+                rewardType: "Vehicle",
+                tunes: [
+                    { label: "Primary", car: "1985 Ford RS200 Evolution", tune: "S1 800 Dirt", creator: "awesomebeau", code: "861 708 819", score: 9.6 },
+                    { label: "Alt 1", car: "2018 Subaru WRX STI ARX Supercar", tune: "S1 800 Dirt", creator: "awesomebeau", code: "224 963 003", score: 9.4 },
+                    { label: "Alt 2", car: "N/A", tune: "N/A", creator: "N/A", code: "N/A", score: null },
+                    { label: "Alt 3", car: "N/A", tune: "N/A", creator: "N/A", code: "N/A", score: null }
+                ]
+            },
+            {
+                event: "Narai-Juku Circuit",
+                type: "Monthly Rivals",
+                restriction: "1993 Porsche 911 Turbo S Leichtbau",
+                target: "Post a Clean Lap",
+                route: "Narai-Juku Circuit",
+                reward: "Super Wheelspin",
+                rewardType: "Credits",
+                tunes: [
+                    { label: "Primary", car: "1993 Porsche 911 Turbo S", tune: "Stock Tuning Only", creator: "N/A", code: "N/A", score: null },
+                    { label: "Alt 1", car: "N/A", tune: "N/A", creator: "N/A", code: "N/A", score: null },
+                    { label: "Alt 2", car: "N/A", tune: "N/A", creator: "N/A", code: "N/A", score: null },
+                    { label: "Alt 3", car: "N/A", tune: "N/A", creator: "N/A", code: "N/A", score: null }
+                ]
+            },
+            {
+                event: "Ito Region",
+                type: "Treasure Hunt",
+                restriction: "Follow the Photo Clue",
+                target: "Smash Treasure Chest",
+                route: "N/A",
+                reward: "100,000 CR",
+                rewardType: "Credits",
+                tunes: [
+                    { label: "Primary", car: "Any Eligible Car", tune: "N/A", creator: "N/A", code: "N/A", score: null },
+                    { label: "Alt 1", car: "N/A", tune: "N/A", creator: "N/A", code: "N/A", score: null },
+                    { label: "Alt 2", car: "N/A", tune: "N/A", creator: "N/A", code: "N/A", score: null },
+                    { label: "Alt 3", car: "N/A", tune: "N/A", creator: "N/A", code: "N/A", score: null }
+                ]
+            },
+            {
+                event: "#OnTheRise",
+                type: "Photo Challenge",
+                restriction: "Take a photo of any car from the 2010s in the air",
+                target: "Take Photo",
+                route: "N/A",
+                reward: "Car Horn: Level Up",
+                rewardType: "Credits",
+                tunes: [
+                    { label: "Primary", car: "Any 2010s Car", tune: "N/A", creator: "N/A", code: "N/A", score: null },
+                    { label: "Alt 1", car: "N/A", tune: "N/A", creator: "N/A", code: "N/A", score: null },
+                    { label: "Alt 2", car: "N/A", tune: "N/A", creator: "N/A", code: "N/A", score: null },
+                    { label: "Alt 3", car: "N/A", tune: "N/A", creator: "N/A", code: "N/A", score: null }
+                ]
+            }
+        ];
+
+        let currentData = [...playlistData];
+        let sortCol = '';
+        let sortAsc = true;
+
+        function getScoreBadge(score) {
+            if (!score) return `<span class="score-pill score-na">-</span>`;
+            let sClass = score >= 9.6 ? 'score-high' : 'score-med';
+            return `<span class="score-pill ${sClass}">${score}/10</span>`;
+        }
+
+        function getTagClass(label) {
+            if (label === 'Primary') return 'primary';
+            if (label === 'Alt 1') return 'alt1';
+            if (label === 'Alt 2') return 'alt2';
+            return 'alt3';
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+
+            currentData.forEach(row => {
+                const tr = document.createElement('tr');
+                let rewardClass = row.rewardType === 'Vehicle' ? 'reward-vehicle' : 'reward-other';
+
+                let restrictionHtml = `
+                    <div class="fluid-block">
+                        <div class="fluid-item">
+                            <span class="setup-tag alt3">Restriction</span>
+                            <span class="wrapping-text" style="color: #ccc; font-weight: bold; font-size: 0.85rem;">${row.restriction}</span>
+                        </div>
+                        <div class="fluid-item">
+                            <span class="setup-tag alt3">Target</span>
+                            <span class="wrapping-text" style="color: var(--neon-cyan); font-weight: bold; font-size: 0.85rem;">${row.target}</span>
+                        </div>
+                        ${row.route !== 'N/A' ? `
+                        <div class="fluid-item">
+                            <span class="setup-tag alt3">Route</span>
+                            <span class="wrapping-text" style="color: #8b8b9e; font-size: 0.75rem;">${row.route}</span>
+                        </div>` : ''}
+                    </div>
+                `;
+
+                let carHtml = `<div class="setup-container">`;
+                let codeHtml = `<div class="setup-container">`;
+                let scoreHtml = `<div class="setup-container">`;
+
+                row.tunes.forEach((t, index) => {
+                    let tagClass = getTagClass(t.label);
+
+                    // Car layout
+                    carHtml += `
+                        <div class="setup-block">
+                            <span class="setup-tag ${tagClass}">${t.label}</span>
+                            <strong class="car-text">${t.car}</strong>
+                            ${t.tune !== 'N/A' ? `<span class="car-text" style="font-size:0.85rem; color:var(--neon-cyan);">${t.tune}</span>` : ''}
+                        </div>
+                    `;
+
+                    // Creator & code layout
+                    codeHtml += `
+                        <div class="setup-block">
+                            <span class="setup-tag ${tagClass}">${t.label}</span>
+                            ${t.code !== 'N/A' ? `<div class="car-text" style="font-size: 0.8rem; color:#aaa; line-height:1.1;">${t.creator}</div><span class="code-pill">${t.code}</span>` : '<span style="color:#666;">N/A</span>'}
+                        </div>
+                    `;
+
+                    // Score layout
+                    scoreHtml += `
+                        <div class="setup-block">
+                            <span class="setup-tag ${tagClass}">${t.label}</span>
+                            ${getScoreBadge(t.score)}
+                        </div>
+                    `;
+                });
+
+                carHtml += `</div>`;
+                codeHtml += `</div>`;
+                scoreHtml += `</div>`;
+
+                tr.innerHTML = `
+                    <td style="white-space:normal;"><span class="badge-type">${row.type}</span></td>
+                    <td style="font-weight: 600; white-space:normal;">${row.event}</td>
+                    <td>${restrictionHtml}</td>
+                    <td class="${rewardClass}" style="white-space:normal;">${row.reward}</td>
+                    <td>${carHtml}</td>
+                    <td>${codeHtml}</td>
+                    <td>${scoreHtml}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            document.getElementById('eventCount').innerHTML = `<span>${currentData.length}</span>`;
+        }
+
+        function applyFilters() {
+            const searchVal = document.getElementById('searchFilter').value.toLowerCase();
+            const typeVal = document.getElementById('typeFilter').value;
+            const rewardVal = document.getElementById('rewardFilter').value;
+
+            currentData = playlistData.filter(item => {
+                let matchTuneSearch = item.tunes.some(t => 
+                    t.car.toLowerCase().includes(searchVal) || 
+                    t.creator.toLowerCase().includes(searchVal) || 
+                    t.code.toLowerCase().includes(searchVal)
+                );
+
+                const matchSearch = item.event.toLowerCase().includes(searchVal) || 
+                                    item.reward.toLowerCase().includes(searchVal) ||
+                                    item.restriction.toLowerCase().includes(searchVal) ||
+                                    item.target.toLowerCase().includes(searchVal) || 
+                                    matchTuneSearch;
+                
+                const matchType = typeVal === 'All' || item.type.includes(typeVal);
+                const matchReward = rewardVal === 'All' || item.rewardType === rewardVal;
+
+                return matchSearch && matchType && matchReward;
+            });
+
+            if (sortCol) {
+                sortAsc = !sortAsc; 
+                sortTable(sortCol);
+            } else {
+                renderTable();
+            }
+        }
+
+        function sortTable(col) {
+            if (sortCol === col) {
+                sortAsc = !sortAsc;
+            } else {
+                sortCol = col;
+                sortAsc = true;
+            }
+
+            document.querySelectorAll('th').forEach(th => {
+                th.classList.remove('asc', 'desc');
+            });
+            const activeTh = document.querySelector(`th[onclick="sortTable('${col}')"]`);
+            if (activeTh) {
+                activeTh.classList.add(sortAsc ? 'asc' : 'desc');
+            }
+
+            currentData.sort((a, b) => {
+                let valA = a[col];
+                let valB = b[col];
+
+                if (valA === null) valA = '';
+                if (valB === null) valB = '';
+
+                if (typeof valA === 'string') valA = valA.toLowerCase();
+                if (typeof valB === 'string') valB = valB.toLowerCase();
+
+                if (valA < valB) return sortAsc ? -1 : 1;
+                if (valA > valB) return sortAsc ? 1 : -1;
+                return 0;
+            });
+
+            renderTable();
+        }
+
+        renderTable();
+    </script>
+</body>
+</html>
