@@ -2,16 +2,16 @@
 
 Interactive, responsive dashboards and reference guides for weekly *Forza Horizon 6* Festival Playlists.
 
-🌐 **Live Dashboard:** [https://yusuke614.github.io/fh6-festival-playlists/](https://yusuke614.github.io/fh6-festival-playlists/)
+🌐 **Live Dashboard:** [https://Yusuke614.github.io/fh6-festival-playlists/](https://Yusuke614.github.io/fh6-festival-playlists/)
 
 ---
 
 ## Current Active Season
 
 * **Series:** Series 05 — *British Automotive*
-* **Season:** Week 3 — Winter (Dry Season)
-* **Active Window:** September 24 – October 1, 2026
-* **Season Rewards:** 2006 Vauxhall Astra VXR (20 Pts) • 2016 Bentley Bentayga (40 Pts)
+* **Season:** Week 4 — Spring (Hot Season)
+* **Active Window:** October 1 – October 8, 2026
+* **Season Rewards:** 2002 Lotus Esprit V8 (20 Pts) • 2023 Lotus Emira (40 Pts)
 
 ---
 
@@ -29,20 +29,10 @@ Interactive, responsive dashboards and reference guides for weekly *Forza Horizo
 
 ```text
 fh6-festival-playlists/
-├── Series-01                                           # Archived Series Playlist
-├── Series-02                                           # Archived Series Playlist
-├── Series-03                                           # Archived Series Playlist
-├── Series-04                                           # Archived Series Playlist
-├── Series-05                                           # Archived Series Playlist
-├── Series-06                                           # Future Series Playlist Placeholder
-├── Series-07                                           # Future Series Playlist Placeholder
-├── Series-08                                           # Future Series Playlist Placeholder
-├── Series-09                                           # Future Series Playlist Placeholder
-├── Series-10                                           # Future Series Playlist Placeholder
-├── README.md                                           # Project documentation
-├── index.html                                          # Currently active seasonal dashboard
-├── FH6_Series05_Week3_Winter_Dashboard_Main_v3.html    # Season archive copy
-└── FH6_Series05_Week3_Winter_Dashboard_Main_v3.txt     # Plain-text companion guide
+├── README.md                                         # Project documentation
+├── index.html                                        # Currently active seasonal dashboard
+├── FH6_Series05_Week4_Spring_Dashboard_Main_v2.html   # Season archive copy
+└── FH6_Series05_Week4_Spring_Dashboard_Main_v2.txt    # Plain-text companion guide
 ```
 
 ---
