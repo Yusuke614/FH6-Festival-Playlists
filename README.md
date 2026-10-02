@@ -31,8 +31,8 @@ Interactive, responsive dashboards and reference guides for weekly *Forza Horizo
 fh6-festival-playlists/
 ├── README.md                                         # Project documentation
 ├── index.html                                        # Currently active seasonal dashboard
-├── FH6_Series05_Week4_Spring_Dashboard_Main_v2.html   # Season archive copy
-└── FH6_Series05_Week4_Spring_Dashboard_Main_v2.txt    # Plain-text companion guide
+├── FH6_Series05_Week4_Spring_Dashboard_Main_v3.html   # Season archive copy
+└── FH6_Series05_Week4_Spring_Dashboard_Main_v3.txt    # Plain-text companion guide
 ```
 
 ---
