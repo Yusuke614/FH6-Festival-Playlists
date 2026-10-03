@@ -2,7 +2,7 @@
 
 Interactive, responsive dashboards and reference guides for weekly *Forza Horizon 6* Festival Playlists.
 
-🌐 **Live Dashboard:** [https://yusuke614.github.io/fh6-festival-playlists/](https://yusuke614.github.io/fh6-festival-playlists/)
+🌐 **Live Dashboard:** [https://Yusuke614.github.io/fh6-festival-playlists/](https://Yusuke614.github.io/fh6-festival-playlists/)
 
 ---
 
@@ -31,8 +31,8 @@ Interactive, responsive dashboards and reference guides for weekly *Forza Horizo
 fh6-festival-playlists/
 ├── README.md                                         # Project documentation
 ├── index.html                                        # Currently active seasonal dashboard
-├── FH6_Series05_Week4_Spring_Dashboard_Main_v3.html   # Season archive copy
-└── FH6_Series05_Week4_Spring_Dashboard_Main_v3.txt    # Plain-text companion guide
+├── FH6_Series05_Week4_Spring_Dashboard_Main_v4.html   # Season archive copy
+└── FH6_Series05_Week4_Spring_Dashboard_Main_v4.txt    # Plain-text companion guide
 ```
 
 ---
